@@ -159,3 +159,38 @@ debug from this. There's no hint of which auth step failed.
   revealing which step failed — just a stable code for the client to map to
   a helpful message).
 
+## P4. `recall()` returns top-K by distance — no relevance threshold ✅ fixed in kit
+
+**Observed:** User logged *"i ate beef yesterday"* then recalled *"what did i
+eat yesterday"*. The beef result came back at distance 0.48 (correct), but
+*also* four unrelated Star Wars / Dune memories at distances 0.84–0.91 —
+because the namespace only had ~5 entries total and recall asks for top 10.
+
+The user's reasonable interpretation: "MemWal is returning random stuff."
+The actual behavior: vector recall is top-K-by-distance, full stop. It
+sorts everything by similarity and returns the K closest; "closest" is not
+the same as "relevant," especially when the corpus is small.
+
+**Workshop impact:** Every participant will hit this within their first
+5 recalls. The first time you have 3+ unrelated memories in a namespace and
+ask anything, the noise leaks in. Without context for what the distance
+column means, it reads as broken.
+
+**Fix applied in this kit:**
+- Added a `MAX_RECALL_DISTANCE = 0.7` constant in `app/actions.ts` and a
+  `.filter()` step before mapping results. Anything with `distance >= 0.7`
+  gets dropped before the UI sees it.
+- The constant is heavily commented with the rough distance scale for
+  text-embedding-3-small so participants can tune it.
+
+**Still to fix upstream:**
+- SKILL.md should call out the top-K-without-threshold behavior in the
+  recall section. Right now it just says "semantic search for memories,"
+  which gives no hint that you'll get filler when the corpus is small.
+- SKILL.md could include the distance-scale rough guide
+  (0.0–0.3 duplicate / 0.3–0.6 related / 0.6–0.8 noise / 0.8+ unrelated)
+  so people know what numbers to filter at.
+- The SDK could expose a `minDistance` / `maxDistance` option on
+  `recall()` so consumers don't have to post-filter. The Vercel AI
+  middleware already has `minRelevance`; the base `MemWal.recall()` does not.
+
