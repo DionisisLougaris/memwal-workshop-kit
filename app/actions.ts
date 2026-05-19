@@ -2,6 +2,24 @@
 
 import { getMemWal } from "@/lib/memwal";
 
+/**
+ * Maximum cosine distance for a recall hit to count as "relevant."
+ *
+ * `recall()` returns the top-K closest memories by cosine distance, but it does
+ * NOT cut off at "no longer relevant." If you have 5 memories and ask about
+ * something unrelated, you'll get all 5 back. We filter post-hoc.
+ *
+ * Rough guide for OpenAI text-embedding-3-small (what MemWal uses today):
+ *   < 0.3 → near-duplicate or paraphrase
+ *   0.3 – 0.6 → same topic, related
+ *   0.6 – 0.8 → vaguely related, mostly noise
+ *   > 0.8 → unrelated, filler
+ *
+ * 0.7 is a forgiving default. Tighten for fewer false positives, loosen if
+ * you're seeing too many empty recalls.
+ */
+const MAX_RECALL_DISTANCE = 0.7;
+
 export type AnalyzeOutcome =
   | { ok: true; verb: "analyze"; facts: string[]; saved: number; failed: number }
   | { ok: false; error: string };
@@ -114,11 +132,13 @@ export async function searchReadingHistory(query: string): Promise<SearchResult>
     const result = await memwal.recall(query, 10);
     return {
       ok: true,
-      results: result.results.map((r) => ({
-        blobId: r.blob_id,
-        text: r.text,
-        distance: r.distance,
-      })),
+      results: result.results
+        .filter((r) => r.distance < MAX_RECALL_DISTANCE)
+        .map((r) => ({
+          blobId: r.blob_id,
+          text: r.text,
+          distance: r.distance,
+        })),
     };
   } catch (err) {
     return {
