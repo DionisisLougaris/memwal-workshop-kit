@@ -1,13 +1,40 @@
-# MemWal Workshop Kit — Reading Tracker
+# MemWal Workshop Kit — Reading Tracker (verifiability)
 
-A minimal Next.js app that exercises the core MemWal surface:
+> **You're on the `extension/verifiability` reference branch.** This is the
+> completed extension. Workshop participants start on `main` and build this
+> themselves.
 
-- `analyze()` — extract atomic facts from a paragraph and store each one as a memory
-- `remember()` — store the raw text exactly as typed
-- `recall()` — semantic search over your stored memories
+A minimal Next.js app that exercises the core MemWal surface, with a third
+"verify on walrus" card that proves the data really lives on Walrus and not
+just in MemWal's local cache:
 
-Single screen. No database, no auth. Memory persists across sessions, models, and
-devices via your MemWal account.
+- `analyze()` — extract atomic facts and store them
+- `remember()` — store raw text
+- `recall()` — semantic search (now shows the Walrus blob ID for each hit)
+- `restore()` *(new)* — pull what's on Walrus and reconcile with the local index
+
+## What this extension teaches
+
+- **Walrus is the source of truth.** The relayer's Postgres index is a cache.
+  `restore()` proves it by re-pulling from Walrus and showing the count of
+  blobs that exist independently of MemWal's infrastructure.
+- **Every memory has a public, addressable identity.** The blob ID shown next
+  to each recall result is the on-chain pointer. If MemWal disappeared
+  tomorrow, the blobs would still be there.
+- **Recovery is a first-class operation.** `restore()` exists because the
+  trust boundary stops at Walrus. If the local index gets wiped, the same call
+  rebuilds it. No data loss.
+
+## What changed vs `main`
+
+- `app/actions.ts` — adds a `verifyOnWalrus()` server action that calls
+  `memwal.restore("reading-tracker", 100)` and returns the breakdown
+  (`total`, `restored`, `skipped`).
+- `app/page.tsx` — adds a third card with a "verify on walrus" button and
+  a results panel that surfaces the big total. Also adds a small `walrus:…`
+  badge next to each recall hit showing the truncated blob ID (hover for the
+  full ID).
+- `app/globals.css` — styles for the verify card and the blob-id badge.
 
 ## Branches
 
@@ -75,20 +102,24 @@ tool, paste `SKILL.md` into context before asking it to write MemWal code.
 
 ## How to use
 
-- Type a paragraph about something you read into the **log** card and hit save.
-  `analyze()` extracts atomic facts and stores each one. The extracted facts
-  show up underneath.
-- Type a natural-language question into the **recall** card and hit recall.
-  `recall()` does a semantic search across everything you've stored under the
-  `reading-tracker` namespace and shows the top 10 matches with distance scores.
+- Log a few reading entries in the **log** card. Hit the **recall** card and
+  search them — each hit now shows a `walrus:…` blob-id badge.
+- Click **verify on walrus** in the third card. The big number is how many
+  blobs actually exist on Walrus right now under your `reading-tracker`
+  namespace. The breakdown shows how many were already in the local index
+  vs. how many were freshly pulled from Walrus.
+- For a stronger demo: drop the relayer's Postgres index (not something you
+  can do from the workshop, but it's the failure mode `restore` defends
+  against). Re-run `verify on walrus` and the `restored` count would be the
+  full total — Walrus had everything.
 
 ## What's wired
 
 | Surface | File |
 |---|---|
 | MemWal client (cached per process) | `lib/memwal.ts` |
-| Server actions (`analyzeEntry`, `rememberEntry`, `searchReadingHistory`) | `app/actions.ts` |
-| UI (one client component) | `app/page.tsx` |
+| Server actions (`analyzeEntry`, `rememberEntry`, `searchReadingHistory`, `verifyOnWalrus`) | `app/actions.ts` |
+| UI with three cards (recall, log, verify) | `app/page.tsx` |
 | Env sanity-check script | `verify.ts` |
 
 ## Notes

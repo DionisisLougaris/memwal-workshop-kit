@@ -5,12 +5,16 @@ import {
   analyzeEntry,
   rememberEntry,
   searchReadingHistory,
+  verifyOnWalrus,
   type SearchHit,
+  type VerifyOutcome,
 } from "./actions";
 
 type LastSave =
   | { verb: "analyze"; facts: string[] }
   | { verb: "remember"; text: string; blobId: string };
+
+type VerifyState = Extract<VerifyOutcome, { ok: true }> | null;
 
 export default function Home() {
   const [query, setQuery] = useState("");
@@ -18,9 +22,11 @@ export default function Home() {
   const [results, setResults] = useState<SearchHit[] | null>(null);
   const [lastSave, setLastSave] = useState<LastSave | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [verify, setVerify] = useState<VerifyState>(null);
   const [searching, startSearch] = useTransition();
   const [analyzing, startAnalyze] = useTransition();
   const [remembering, startRemember] = useTransition();
+  const [verifying, startVerify] = useTransition();
 
   const saving = analyzing || remembering;
 
@@ -71,6 +77,19 @@ export default function Home() {
     setError(null);
   }
 
+  function handleVerify() {
+    setError(null);
+    startVerify(async () => {
+      const r = await verifyOnWalrus();
+      if (!r.ok) {
+        setError(r.error);
+        setVerify(null);
+        return;
+      }
+      setVerify(r);
+    });
+  }
+
   return (
     <main className="container">
       <header>
@@ -111,7 +130,13 @@ export default function Home() {
             {results.map((m) => (
               <li key={m.blobId}>
                 <span className="dist">d={m.distance.toFixed(2)}</span>
-                <span>{m.text}</span>
+                <span className="hit-text">{m.text}</span>
+                <span
+                  className="blob-id"
+                  title={`Walrus blob ID: ${m.blobId}`}
+                >
+                  walrus:{m.blobId.slice(0, 8)}…
+                </span>
               </li>
             ))}
           </ul>
@@ -170,6 +195,44 @@ export default function Home() {
             <ul>
               <li>✓ {lastSave.text}</li>
             </ul>
+          </div>
+        )}
+      </section>
+
+      <section className="card">
+        <label>verify on walrus</label>
+        <p className="hint" style={{ marginTop: 0 }}>
+          your memories live on walrus, not in this app. <code>restore()</code>
+          {" "}asks the relayer to re-pull everything stored under your account
+          on walrus and reconcile it with the local index — the{" "}
+          <strong>total</strong> count below is what's actually on-chain.
+        </p>
+        <button onClick={handleVerify} disabled={verifying}>
+          {verifying ? "checking walrus…" : "verify on walrus"}
+        </button>
+
+        {verify && (
+          <div className="verify-results">
+            <div className="verify-headline">
+              <span className="big-number">{verify.total}</span>
+              <span className="big-label">
+                memories live on walrus under namespace{" "}
+                <code>{verify.namespace}</code>
+              </span>
+            </div>
+            <ul className="verify-breakdown">
+              <li>
+                <span className="num">{verify.skipped}</span> already in the
+                local index (consistent)
+              </li>
+              <li>
+                <span className="num">{verify.restored}</span> pulled fresh
+                from walrus (would have been recovered after a wipe)
+              </li>
+            </ul>
+            <p className="hint">
+              owner: <code>{verify.owner.slice(0, 10)}…{verify.owner.slice(-6)}</code>
+            </p>
           </div>
         )}
       </section>
