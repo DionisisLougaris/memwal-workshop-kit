@@ -45,6 +45,48 @@ h1 {
   margin: 0;
 }
 
+.ns-switcher {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.ns-switcher label {
+  margin-bottom: 0;
+}
+
+.ns-switcher select {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.ns-switcher select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.ns-hint {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.empty code {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--fg);
+  font-style: normal;
+}
+
 .card {
   background: var(--card);
   border: 1px solid var(--border);

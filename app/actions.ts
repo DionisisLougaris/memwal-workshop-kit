@@ -1,6 +1,7 @@
 "use server";
 
 import { getMemWal } from "@/lib/memwal";
+import { assertNamespace } from "./namespaces";
 
 export type AnalyzeOutcome =
   | { ok: true; verb: "analyze"; facts: string[]; saved: number; failed: number }
@@ -18,14 +19,17 @@ export type SearchResult =
 
 /**
  * analyze() — feeds the entry to an LLM that extracts atomic facts and stores
- * each one as its own memory. Phrasing is canonicalized (e.g. "i like X" →
- * "user likes X"), which makes recall robust to paraphrasing.
+ * each one as its own memory under the given namespace.
  */
-export async function analyzeEntry(text: string): Promise<AnalyzeOutcome> {
+export async function analyzeEntry(
+  text: string,
+  namespace: string,
+): Promise<AnalyzeOutcome> {
   if (!text.trim()) return { ok: false, error: "empty entry" };
   try {
+    assertNamespace(namespace);
     const memwal = getMemWal();
-    const result = await memwal.analyzeAndWait(text);
+    const result = await memwal.analyzeAndWait(text, namespace);
     return {
       ok: true,
       verb: "analyze",
@@ -42,15 +46,17 @@ export async function analyzeEntry(text: string): Promise<AnalyzeOutcome> {
 }
 
 /**
- * remember() — stores the entry exactly as typed, no fact extraction, no
- * canonicalization. Useful when the wording matters or you've already
- * pre-processed the text yourself.
+ * remember() — stores the entry exactly as typed under the given namespace.
  */
-export async function rememberEntry(text: string): Promise<RememberOutcome> {
+export async function rememberEntry(
+  text: string,
+  namespace: string,
+): Promise<RememberOutcome> {
   if (!text.trim()) return { ok: false, error: "empty entry" };
   try {
+    assertNamespace(namespace);
     const memwal = getMemWal();
-    const result = await memwal.rememberAndWait(text);
+    const result = await memwal.rememberAndWait(text, namespace);
     return {
       ok: true,
       verb: "remember",
@@ -65,11 +71,15 @@ export async function rememberEntry(text: string): Promise<RememberOutcome> {
   }
 }
 
-export async function searchReadingHistory(query: string): Promise<SearchResult> {
+export async function searchReadingHistory(
+  query: string,
+  namespace: string,
+): Promise<SearchResult> {
   if (!query.trim()) return { ok: false, error: "empty query" };
   try {
+    assertNamespace(namespace);
     const memwal = getMemWal();
-    const result = await memwal.recall(query, 10);
+    const result = await memwal.recall(query, 10, namespace);
     return {
       ok: true,
       results: result.results.map((r) => ({

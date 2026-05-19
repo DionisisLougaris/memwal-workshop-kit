@@ -7,12 +7,19 @@ import {
   searchReadingHistory,
   type SearchHit,
 } from "./actions";
+import {
+  NAMESPACES,
+  NAMESPACE_PLACEHOLDERS,
+  DEFAULT_NAMESPACE,
+  type Namespace,
+} from "./namespaces";
 
 type LastSave =
   | { verb: "analyze"; facts: string[] }
   | { verb: "remember"; text: string; blobId: string };
 
 export default function Home() {
+  const [namespace, setNamespace] = useState<Namespace>(DEFAULT_NAMESPACE);
   const [query, setQuery] = useState("");
   const [entry, setEntry] = useState("");
   const [results, setResults] = useState<SearchHit[] | null>(null);
@@ -23,11 +30,22 @@ export default function Home() {
   const [remembering, startRemember] = useTransition();
 
   const saving = analyzing || remembering;
+  const placeholders = NAMESPACE_PLACEHOLDERS[namespace];
+
+  function handleNamespaceChange(next: Namespace) {
+    setNamespace(next);
+    // Wipe page state so we never show stale results from a different namespace.
+    setResults(null);
+    setLastSave(null);
+    setQuery("");
+    setEntry("");
+    setError(null);
+  }
 
   function handleSearch() {
     setError(null);
     startSearch(async () => {
-      const r = await searchReadingHistory(query);
+      const r = await searchReadingHistory(query, namespace);
       if (!r.ok) {
         setError(r.error);
         setResults(null);
@@ -40,7 +58,7 @@ export default function Home() {
   function handleAnalyze() {
     setError(null);
     startAnalyze(async () => {
-      const r = await analyzeEntry(entry);
+      const r = await analyzeEntry(entry, namespace);
       if (!r.ok) {
         setError(r.error);
         setLastSave(null);
@@ -54,7 +72,7 @@ export default function Home() {
   function handleRemember() {
     setError(null);
     startRemember(async () => {
-      const r = await rememberEntry(entry);
+      const r = await rememberEntry(entry, namespace);
       if (!r.ok) {
         setError(r.error);
         setLastSave(null);
@@ -78,6 +96,23 @@ export default function Home() {
         <p className="sub">
           log what you read. recall what you read. across sessions, models, and devices.
         </p>
+        <div className="ns-switcher">
+          <label htmlFor="ns">namespace</label>
+          <select
+            id="ns"
+            value={namespace}
+            onChange={(e) => handleNamespaceChange(e.target.value as Namespace)}
+          >
+            {NAMESPACES.map((ns) => (
+              <option key={ns} value={ns}>
+                {ns}
+              </option>
+            ))}
+          </select>
+          <span className="ns-hint">
+            same account · isolated data · switching wipes the view
+          </span>
+        </div>
       </header>
 
       <section className="card">
@@ -90,7 +125,7 @@ export default function Home() {
           onKeyDown={(e) => {
             if (e.key === "Enter" && query && !searching) handleSearch();
           }}
-          placeholder="e.g. what did i think about sapiens?"
+          placeholder={placeholders.recall}
         />
         <div className="button-row">
           <button onClick={handleSearch} disabled={!query || searching}>
@@ -117,17 +152,20 @@ export default function Home() {
           </ul>
         )}
         {results && results.length === 0 && (
-          <p className="empty">no matching memories yet — log a reading session below.</p>
+          <p className="empty">
+            no matching memories under <code>{namespace}</code> yet — log
+            something below.
+          </p>
         )}
       </section>
 
       <section className="card">
-        <label htmlFor="e">log a reading session</label>
+        <label htmlFor="e">log a new entry to {namespace}</label>
         <textarea
           id="e"
           value={entry}
           onChange={(e) => setEntry(e.target.value)}
-          placeholder='e.g. "just finished sapiens — found the agricultural revolution chapter mind-bending, less convinced by the section on happiness."'
+          placeholder={placeholders.log}
           rows={5}
         />
         <div className="button-row">
@@ -144,14 +182,14 @@ export default function Home() {
         </div>
         <p className="hint">
           <strong>analyze()</strong> runs an LLM pass that extracts atomic facts and
-          canonicalizes phrasing (e.g. "i like X" → "user likes X").{" "}
-          <strong>remember()</strong> stores exactly what you typed.
-          Try both with the same input — recall the same query — see the difference.
+          canonicalizes phrasing.{" "}
+          <strong>remember()</strong> stores exactly what you typed. Try both with
+          the same input — recall the same query — see the difference.
         </p>
 
         {lastSave?.verb === "analyze" && (
           <div className="facts">
-            <h3>analyze() → facts saved</h3>
+            <h3>analyze() → facts saved to {namespace}</h3>
             {lastSave.facts.length > 0 ? (
               <ul>
                 {lastSave.facts.map((f, i) => (
@@ -166,7 +204,7 @@ export default function Home() {
 
         {lastSave?.verb === "remember" && (
           <div className="facts">
-            <h3>remember() → stored raw</h3>
+            <h3>remember() → stored raw in {namespace}</h3>
             <ul>
               <li>✓ {lastSave.text}</li>
             </ul>

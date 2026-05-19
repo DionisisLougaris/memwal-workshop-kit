@@ -34,6 +34,11 @@ participants should not look at those until they're done.
 - Use `analyzeAndWait()` / `rememberAndWait()` for any save+recall flow in
   the same user interaction. The fire-and-forget variants will trip the
   indexer-lag window and look broken.
+- **Next.js "use server" files can only export async functions.** Keep
+  runtime constants, types, and helpers in a separate plain `.ts` module
+  (e.g. `app/namespaces.ts`) and import them into the actions file. This
+  trips a runtime error on the first action call — not at build or
+  typecheck time — so it's easy to miss.
 
 ## What NOT to do
 
