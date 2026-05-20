@@ -1,6 +1,7 @@
 "use server";
 
 import { getMemWal } from "@/lib/memwal";
+import { fetchAccountInfo, type AccountInfo } from "@/lib/sui-chain";
 
 /**
  * Maximum cosine distance for a recall hit to count as "relevant."
@@ -75,6 +76,38 @@ export async function rememberEntry(text: string): Promise<RememberOutcome> {
       text,
       blobId: result.blob_id,
     };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "unknown error",
+    };
+  }
+}
+
+/**
+ * Fetch the MemWalAccount object directly from Sui — owner, delegate keys,
+ * active flag, etc. Includes the public key of the delegate this app is using
+ * so the UI can highlight "this is me" in the delegate list.
+ */
+export type AccountSnapshotResult =
+  | {
+      ok: true;
+      account: AccountInfo;
+      currentDelegatePubKey: string;
+    }
+  | { ok: false; error: string };
+
+export async function fetchAccountSnapshot(): Promise<AccountSnapshotResult> {
+  const accountId = process.env.MEMWAL_ACCOUNT_ID;
+  if (!accountId) {
+    return { ok: false, error: "MEMWAL_ACCOUNT_ID is not set in .env.local" };
+  }
+  try {
+    const [account, currentDelegatePubKey] = await Promise.all([
+      fetchAccountInfo(accountId),
+      getMemWal().getPublicKeyHex(),
+    ]);
+    return { ok: true, account, currentDelegatePubKey };
   } catch (err) {
     return {
       ok: false,

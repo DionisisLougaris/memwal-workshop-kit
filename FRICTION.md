@@ -194,3 +194,60 @@ column means, it reads as broken.
   `recall()` so consumers don't have to post-filter. The Vercel AI
   middleware already has `minRelevance`; the base `MemWal.recall()` does not.
 
+## P5. JSON-RPC client examples are deprecated — use gRPC ✅ fixed in kit
+
+**Observed (extension/permissions-dashboard branch):** Reaching for a Sui
+client to read the on-chain `MemWalAccount` directly. The reflex (matching
+the SDK's own `account.ts`) was:
+
+```ts
+import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
+const client = new SuiClient({ url: getFullnodeUrl("testnet") });
+```
+
+In `@mysten/sui@2.17.0` this import doesn't resolve — `SuiClient` and
+`getFullnodeUrl` are gone from `/client`. JSON-RPC is officially deprecated.
+Canonical migration doc:
+https://sdk.mystenlabs.com/sui/migrations/sui-2.0/json-rpc-migration
+
+The replacement is `SuiGrpcClient` from `@mysten/sui/grpc`:
+
+```ts
+import { SuiGrpcClient } from "@mysten/sui/grpc";
+const client = new SuiGrpcClient({
+  baseUrl: "https://fullnode.testnet.sui.io:443",
+  network: "testnet",
+});
+const { object } = await client.getObject({
+  objectId,
+  include: { json: true },
+});
+```
+
+The API shape is also different: `getObject({ objectId, include })` instead
+of `getObject({ id, options })`. Response is `{ object: { json } }` rather
+than `{ data: { content: { fields } } }`.
+
+**Workshop impact:** Participants building anything that touches Sui
+directly (not just MemWal's data plane) will follow stale tutorials, paste
+the JSON-RPC snippet, and hit `Module has no exported member 'SuiClient'`.
+Workshop facilitators need to know the right import.
+
+**Fix applied in this kit:**
+- `lib/sui-chain.ts` uses `SuiGrpcClient` with hardcoded gRPC endpoints
+  for testnet + mainnet.
+- The file's top comment notes that JSON-RPC is deprecated and links to
+  the Sui docs page.
+
+**Still to fix upstream:**
+- The MemWal SDK's own `account.ts` still does
+  `await import("@mysten/sui/client").then(m => m.SuiClient)` — works at
+  runtime if a compatible version is installed, but doesn't surface the
+  deprecation. Worth updating to `SuiGrpcClient` to match Sui's direction.
+- SKILL.md doesn't currently mention which Sui client variant to use when
+  reaching outside the relayer. A one-line callout
+  ("for direct Sui reads, use `SuiGrpcClient` from `@mysten/sui/grpc`")
+  would save participants a debugging cycle.
+- `@mysten/sui` could export a small helper like
+  `getGrpcFullnodeUrl(network)` so consumers don't hardcode URLs.
+

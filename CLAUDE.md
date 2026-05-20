@@ -34,6 +34,12 @@ participants should not look at those until they're done.
 - Use `analyzeAndWait()` / `rememberAndWait()` for any save+recall flow in
   the same user interaction. The fire-and-forget variants will trip the
   indexer-lag window and look broken.
+- `/permissions` is **read-only by design**. Add/remove delegate keys lives
+  at staging.memwal.ai / memwal.ai because it needs a wallet connection
+  and Enoki/sponsored gas — out of scope for the base kit. If you're
+  asked to add a "revoke" button, that's a separate, opinion-laden
+  feature (wallet onboarding, signing UX, gas handling). Surface the
+  tradeoff before adding it; don't silently extend the kit.
 
 ## What NOT to do
 

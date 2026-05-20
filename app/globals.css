@@ -26,7 +26,38 @@ html, body {
 .container {
   max-width: 720px;
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: 32px 24px 48px 24px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.nav-link {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.nav-link:hover {
+  color: var(--fg);
+  background: var(--card);
+}
+
+.nav-spacer {
+  flex: 1;
+}
+
+.nav-meta {
+  color: var(--muted);
 }
 
 header {
@@ -186,4 +217,115 @@ button.secondary {
   margin-top: 20px;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+/* permissions page */
+
+.kv {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px 16px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.kv dt {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+  padding-top: 2px;
+}
+
+.kv dd {
+  margin: 0;
+  word-break: break-all;
+}
+
+.kv code,
+.kv-inline code {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.kv-inline {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 12px;
+}
+
+.kv-inline dt {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 10px;
+  padding-top: 2px;
+}
+
+.kv-inline dd {
+  margin: 0;
+  word-break: break-all;
+}
+
+.badge {
+  display: inline-block;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.badge.ok {
+  background: rgba(74, 222, 128, 0.1);
+  border-color: var(--good);
+  color: var(--good);
+}
+
+.badge.bad {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: var(--bad);
+  color: var(--bad);
+}
+
+.keys {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.keys li {
+  border-top: 1px solid var(--border);
+  padding: 14px 0;
+}
+
+.keys li.current {
+  border-left: 2px solid var(--good);
+  padding-left: 12px;
+  margin-left: -14px;
+}
+
+.key-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.key-label {
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.hint a {
+  color: var(--fg);
+  text-decoration: underline;
 }
