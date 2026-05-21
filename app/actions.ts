@@ -20,8 +20,22 @@ import { getMemWal } from "@/lib/memwal";
  */
 const MAX_RECALL_DISTANCE = 0.7;
 
+export type AnalyzedFactStatus = {
+  text: string;
+  saved: boolean;
+  /** When !saved, a short reason: "failed", "timeout", or the server error message. */
+  error?: string;
+};
+
 export type AnalyzeOutcome =
-  | { ok: true; verb: "analyze"; facts: string[]; saved: number; failed: number }
+  | {
+      ok: true;
+      verb: "analyze";
+      facts: AnalyzedFactStatus[];
+      total: number;
+      succeeded: number;
+      failed: number;
+    }
   | { ok: false; error: string };
 
 export type RememberOutcome =
@@ -44,11 +58,29 @@ export async function analyzeEntry(text: string): Promise<AnalyzeOutcome> {
   try {
     const memwal = getMemWal();
     const result = await memwal.analyzeAndWait(text);
+
+    const facts: AnalyzedFactStatus[] = result.facts.map((f) => {
+      const status = result.results.find((r) => r.id === f.id);
+      const ok = status?.status === "done";
+      return {
+        text: f.text,
+        saved: ok,
+        error: ok
+          ? undefined
+          : status?.error ?? status?.status ?? "no status returned",
+      };
+    });
+
+    console.log(
+      `[analyze] "${text.slice(0, 60)}…" → extracted ${result.facts.length}, succeeded ${result.succeeded}, failed ${result.failed}`,
+    );
+
     return {
       ok: true,
       verb: "analyze",
-      facts: result.facts.map((f) => f.text),
-      saved: result.succeeded,
+      facts,
+      total: result.total,
+      succeeded: result.succeeded,
       failed: result.failed,
     };
   } catch (err) {

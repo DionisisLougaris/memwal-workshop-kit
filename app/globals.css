@@ -187,6 +187,15 @@ button.secondary {
   color: var(--good);
 }
 
+.facts li.failed {
+  color: var(--bad);
+}
+
+.fact-err {
+  color: var(--muted);
+  font-size: 11px;
+}
+
 .empty {
   color: var(--muted);
   font-style: italic;
