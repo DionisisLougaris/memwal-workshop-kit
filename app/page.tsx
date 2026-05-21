@@ -5,11 +5,17 @@ import {
   analyzeEntry,
   rememberEntry,
   searchReadingHistory,
+  type AnalyzedFactStatus,
   type SearchHit,
 } from "./actions";
 
 type LastSave =
-  | { verb: "analyze"; facts: string[] }
+  | {
+      verb: "analyze";
+      facts: AnalyzedFactStatus[];
+      succeeded: number;
+      failed: number;
+    }
   | { verb: "remember"; text: string; blobId: string };
 
 export default function Home() {
@@ -46,7 +52,12 @@ export default function Home() {
         setLastSave(null);
         return;
       }
-      setLastSave({ verb: "analyze", facts: r.facts });
+      setLastSave({
+        verb: "analyze",
+        facts: r.facts,
+        succeeded: r.succeeded,
+        failed: r.failed,
+      });
       setEntry("");
     });
   }
@@ -151,15 +162,31 @@ export default function Home() {
 
         {lastSave?.verb === "analyze" && (
           <div className="facts">
-            <h3>analyze() → facts saved</h3>
+            <h3>
+              analyze() → {lastSave.succeeded} saved
+              {lastSave.failed > 0 ? `, ${lastSave.failed} failed` : ""}
+            </h3>
             {lastSave.facts.length > 0 ? (
               <ul>
                 {lastSave.facts.map((f, i) => (
-                  <li key={i}>✓ {f}</li>
+                  <li key={i} className={f.saved ? "saved" : "failed"}>
+                    {f.saved ? "✓" : "✗"} {f.text}
+                    {!f.saved && f.error ? (
+                      <span className="fact-err"> — {f.error}</span>
+                    ) : null}
+                  </li>
                 ))}
               </ul>
             ) : (
               <p className="empty">no facts extracted — try a more concrete entry.</p>
+            )}
+            {lastSave.failed > 0 && (
+              <p className="hint" style={{ color: "var(--bad)" }}>
+                Some facts didn&apos;t persist. The relayer accepted them but
+                the storage step (Walrus upload) failed or timed out. Recall
+                won&apos;t find these. Try again, or report to the MemWal team
+                if it keeps happening.
+              </p>
             )}
           </div>
         )}
