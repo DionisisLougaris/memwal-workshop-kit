@@ -85,7 +85,7 @@ export default function Home() {
   return (
     <main className="container">
       <header>
-        <h1>memwal reading tracker</h1>
+        <h1>walrus memory reading tracker</h1>
         <p className="sub">
           log what you read. recall what you read. across sessions, models, and devices.
         </p>
@@ -184,8 +184,8 @@ export default function Home() {
               <p className="hint" style={{ color: "var(--bad)" }}>
                 Some facts didn&apos;t persist. The relayer accepted them but
                 the storage step (Walrus upload) failed or timed out. Recall
-                won&apos;t find these. Try again, or report to the MemWal team
-                if it keeps happening.
+                won&apos;t find these. Try again, or report to the Walrus Memory
+                team if it keeps happening.
               </p>
             )}
           </div>

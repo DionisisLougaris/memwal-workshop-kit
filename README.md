@@ -1,4 +1,4 @@
-# MemWal Workshop Kit — Reading Tracker + Permissions Dashboard
+# Walrus Memory Workshop Kit — Reading Tracker + Permissions Dashboard
 
 > **You're on the `extension/permissions-dashboard` reference branch.** This
 > is the completed extension. Workshop participants start on `main` and build
@@ -16,7 +16,7 @@ straight from Sui, bypassing the relayer entirely.
 - **The account is on Sui, not on the relayer.** Anyone with the `accountId`
   can verify the owner and the delegate-key list by reading the public
   Move object. We do that with one `SuiClient.getObject()` call.
-- **MemWal has two planes.** Data plane (analyze/remember/recall) goes
+- **Walrus Memory has two planes.** Data plane (analyze/remember/recall) goes
   through the relayer for performance. Control plane (account, delegate
   keys, active flag) is enforced onchain. The permissions page exercises
   the second plane.
@@ -46,7 +46,7 @@ mutations move into this UI.
 
 ### How "grant a collaborator access" maps onto today's primitives
 
-The upstream MemWal dashboard talks about *delegate keys*, not
+The upstream Walrus Memory dashboard talks about *delegate keys*, not
 *collaborators* — but the mechanism is the same primitive either way:
 
 1. Your collaborator generates a delegate keypair on their side (same way
@@ -54,7 +54,7 @@ The upstream MemWal dashboard talks about *delegate keys*, not
 2. They send you their **public key** (never the private key).
 3. You add it as a delegate from your dashboard, with a label like
    `bob@example.com`.
-4. They use their private key with the MemWal SDK and get full read+write
+4. They use their private key with the Walrus Memory SDK and get full read+write
    to your memory.
 5. Revoke at any time — the next request signed with their key fails
    verification on-chain.
@@ -100,29 +100,29 @@ What's still missing at the protocol level, regardless of UI:
 
 Each extension branch is a completed reference implementation. Workshop
 participants start from `main` and build their chosen extension themselves
-with Claude Code + the MemWal SDK skill file.
+with Claude Code + the Walrus Memory SDK skill file.
 
-## What MemWal is
+## What Walrus Memory is
 
-MemWal is a privacy-first AI memory layer for Sui + Walrus.
+Walrus Memory is a privacy-first AI memory layer for Sui + Walrus.
 See https://docs.memwal.ai and the SDK at https://www.npmjs.com/package/@mysten-incubation/memwal.
 
 ## Using Claude Code in this repo
 
 Two files at the repo root are written for AI assistants:
 
-- **`SKILL.md`** — a self-contained MemWal SDK reference (installation, API surface,
+- **`SKILL.md`** — a self-contained Walrus Memory SDK reference (installation, API surface,
   troubleshooting). Snapshot of https://github.com/MystenLabs/MemWal/blob/main/SKILL.md.
 - **`CLAUDE.md`** — project conventions and guardrails for Claude Code.
 
 Both are picked up automatically by Claude Code. If you're using a different AI
-tool, paste `SKILL.md` into context before asking it to write MemWal code.
+tool, paste `SKILL.md` into context before asking it to write Walrus Memory code.
 
 ## Prerequisites
 
 - Node.js 18+ (22 recommended — matches the rest of the monorepo)
 - pnpm
-- A MemWal account + a delegate key
+- A Walrus Memory account + a delegate key
 
 ## Setup
 
@@ -171,7 +171,7 @@ tool, paste `SKILL.md` into context before asking it to write MemWal code.
 
 | Surface | File |
 |---|---|
-| MemWal client (cached per process) | `lib/memwal.ts` |
+| Walrus Memory client (cached per process) | `lib/memwal.ts` |
 | Sui chain client + `fetchAccountInfo` | `lib/sui-chain.ts` |
 | Server actions including `fetchAccountSnapshot` | `app/actions.ts` |
 | Reading tracker page | `app/page.tsx` |
@@ -188,4 +188,4 @@ tool, paste `SKILL.md` into context before asking it to write MemWal code.
   durable. This avoids the ~3s indexer-lag window where a freshly-stored memory
   isn't yet recallable.
 - The delegate key lives in `.env.local` and stays server-side. Server actions
-  call MemWal; the browser only sees plaintext results.
+  call Walrus Memory; the browser only sees plaintext results.

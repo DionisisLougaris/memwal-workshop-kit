@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "MemWal Reading Tracker — permissions",
+  title: "Walrus Memory Reading Tracker — permissions",
   description:
     "Reading tracker + a permissions dashboard that reads the MemWalAccount straight from Sui.",
 };

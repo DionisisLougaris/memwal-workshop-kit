@@ -10,7 +10,7 @@ import { fetchAccountInfo, type AccountInfo } from "@/lib/sui-chain";
  * NOT cut off at "no longer relevant." If you have 5 memories and ask about
  * something unrelated, you'll get all 5 back. We filter post-hoc.
  *
- * Rough guide for OpenAI text-embedding-3-small (what MemWal uses today):
+ * Rough guide for OpenAI text-embedding-3-small (what Walrus Memory uses today):
  *   < 0.3 → near-duplicate or paraphrase
  *   0.3 – 0.6 → same topic, related
  *   0.6 – 0.8 → vaguely related, mostly noise
