@@ -2,7 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "MemWal Reading Tracker",
+  title: "Walrus Memory Reading Tracker",
   description: "Log what you read. Recall what you read.",
 };
 

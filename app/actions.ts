@@ -9,7 +9,7 @@ import { getMemWal } from "@/lib/memwal";
  * NOT cut off at "no longer relevant." If you have 5 memories and ask about
  * something unrelated, you'll get all 5 back. We filter post-hoc.
  *
- * Rough guide for OpenAI text-embedding-3-small (what MemWal uses today):
+ * Rough guide for OpenAI text-embedding-3-small (what Walrus Memory uses today):
  *   < 0.3 → near-duplicate or paraphrase
  *   0.3 – 0.6 → same topic, related
  *   0.6 – 0.8 → vaguely related, mostly noise
@@ -118,13 +118,13 @@ export async function rememberEntry(text: string): Promise<RememberOutcome> {
 /**
  * restore() — rebuilds the local index from Walrus.
  *
- * For every memory MemWal has stored on Walrus under (owner, namespace) it
+ * For every memory Walrus Memory has stored on Walrus under (owner, namespace) it
  * either re-indexes it locally (if it was missing) or leaves the local entry
  * alone (if it was already there). Returns counts.
  *
  * For the workshop, this is how we *prove* the data lives on Walrus and not
  * just in the relayer's local Postgres: the `total` number is what's actually
- * on-chain right now, independent of MemWal's cache.
+ * on-chain right now, independent of Walrus Memory's cache.
  */
 export type VerifyOutcome =
   | {

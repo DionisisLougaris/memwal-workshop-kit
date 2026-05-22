@@ -1,12 +1,12 @@
-# MemWal Workshop Kit — Reading Tracker (verifiability)
+# Walrus Memory Workshop Kit — Reading Tracker (verifiability)
 
 > **You're on the `extension/verifiability` reference branch.** This is the
 > completed extension. Workshop participants start on `main` and build this
 > themselves.
 
-A minimal Next.js app that exercises the core MemWal surface, with a third
+A minimal Next.js app that exercises the core Walrus Memory surface, with a third
 "verify on walrus" card that proves the data really lives on Walrus and not
-just in MemWal's local cache:
+just in Walrus Memory's local cache:
 
 - `analyze()` — extract atomic facts and store them
 - `remember()` — store raw text
@@ -17,9 +17,9 @@ just in MemWal's local cache:
 
 - **Walrus is the source of truth.** The relayer's Postgres index is a cache.
   `restore()` proves it by re-pulling from Walrus and showing the count of
-  blobs that exist independently of MemWal's infrastructure.
+  blobs that exist independently of Walrus Memory's infrastructure.
 - **Every memory has a public, addressable identity.** The blob ID shown next
-  to each recall result is the on-chain pointer. If MemWal disappeared
+  to each recall result is the on-chain pointer. If Walrus Memory disappeared
   tomorrow, the blobs would still be there.
 - **Recovery is a first-class operation.** `restore()` exists because the
   trust boundary stops at Walrus. If the local index gets wiped, the same call
@@ -46,29 +46,29 @@ just in MemWal's local cache:
 
 Each extension branch is a completed reference implementation. Workshop
 participants start from `main` and build their chosen extension themselves
-with Claude Code + the MemWal SDK skill file.
+with Claude Code + the Walrus Memory SDK skill file.
 
-## What MemWal is
+## What Walrus Memory is
 
-MemWal is a privacy-first AI memory layer for Sui + Walrus.
+Walrus Memory is a privacy-first AI memory layer for Sui + Walrus.
 See https://docs.memwal.ai and the SDK at https://www.npmjs.com/package/@mysten-incubation/memwal.
 
 ## Using Claude Code in this repo
 
 Two files at the repo root are written for AI assistants:
 
-- **`SKILL.md`** — a self-contained MemWal SDK reference (installation, API surface,
+- **`SKILL.md`** — a self-contained Walrus Memory SDK reference (installation, API surface,
   troubleshooting). Snapshot of https://github.com/MystenLabs/MemWal/blob/main/SKILL.md.
 - **`CLAUDE.md`** — project conventions and guardrails for Claude Code.
 
 Both are picked up automatically by Claude Code. If you're using a different AI
-tool, paste `SKILL.md` into context before asking it to write MemWal code.
+tool, paste `SKILL.md` into context before asking it to write Walrus Memory code.
 
 ## Prerequisites
 
 - Node.js 18+ (22 recommended — matches the rest of the monorepo)
 - pnpm
-- A MemWal account + a delegate key
+- A Walrus Memory account + a delegate key
 
 ## Setup
 
@@ -117,7 +117,7 @@ tool, paste `SKILL.md` into context before asking it to write MemWal code.
 
 | Surface | File |
 |---|---|
-| MemWal client (cached per process) | `lib/memwal.ts` |
+| Walrus Memory client (cached per process) | `lib/memwal.ts` |
 | Server actions (`analyzeEntry`, `rememberEntry`, `searchReadingHistory`, `verifyOnWalrus`) | `app/actions.ts` |
 | UI with three cards (recall, log, verify) | `app/page.tsx` |
 | Env sanity-check script | `verify.ts` |
@@ -130,4 +130,4 @@ tool, paste `SKILL.md` into context before asking it to write MemWal code.
   durable. This avoids the ~3s indexer-lag window where a freshly-stored memory
   isn't yet recallable.
 - The delegate key lives in `.env.local` and stays server-side. Server actions
-  call MemWal; the browser only sees plaintext results.
+  call Walrus Memory; the browser only sees plaintext results.
