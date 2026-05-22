@@ -1,11 +1,11 @@
 {
-  "name": "memwal-workshop-kit",
+  "name": "walrus-memory-workshop-kit",
   "version": "0.0.1",
   "description": "Hackathon starter kit for building on top of MemWal — a minimal Next.js reading tracker using analyze() + recall().",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/DionisisLougaris/memwal-workshop-kit.git"
+    "url": "https://github.com/DionisisLougaris/walrus-memory-workshop-kit.git"
   },
   "type": "module",
   "scripts": {
