@@ -4,7 +4,7 @@ Your AI assistant has been instructed to log friction here as it works on
 the extension. Add your own observations too — anything that surprised you,
 slowed you down, or felt awkward.
 
-**The MemWal team reads this file after the workshop.** Specific is better
+**The Walrus Memory team reads this file after the workshop.** Specific is better
 than polite. Mild observations are still useful — log them.
 
 ---
@@ -40,7 +40,7 @@ If in doubt, log it.
 
 ## SDK & docs gaps
 
-<!-- Anywhere SKILL.md / CLAUDE.md / the MemWal docs left a hole -->
+<!-- Anywhere SKILL.md / CLAUDE.md / the Walrus Memory docs left a hole -->
 
 <!-- Template (delete me when you add your first real entry):
 **Where it hit:** [the moment / file / command]
@@ -67,4 +67,4 @@ If in doubt, log it.
 
 ## One thing I'd change
 
-<!-- If you could change one thing about MemWal or this kit, what is it? -->
+<!-- If you could change one thing about Walrus Memory or this kit, what is it? -->

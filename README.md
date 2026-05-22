@@ -1,10 +1,10 @@
-# MemWal Workshop Kit — Reading Tracker (multi-namespace)
+# Walrus Memory Workshop Kit — Reading Tracker (multi-namespace)
 
 > **You're on the `extension/multi-namespace` reference branch.** This is the
 > completed extension. Workshop participants start on `main` and build this
 > themselves.
 
-A minimal Next.js app that exercises the core MemWal surface, with a dropdown
+A minimal Next.js app that exercises the core Walrus Memory surface, with a dropdown
 in the header to switch between sub-namespaces of the reading tracker:
 
 - `books` — books you've read
@@ -22,7 +22,7 @@ thing separating them is the namespace string passed to each `analyze()` /
   (runtime). Same isolation primitive, different access pattern.
 - **State hygiene matters.** Switching the dropdown wipes the recall results
   and the entry textarea — otherwise you'd see stale results from the previous
-  namespace and think MemWal mixed them up.
+  namespace and think Walrus Memory mixed them up.
 - **The action layer doesn't care.** The server actions take `namespace` as a
   string and validate it. The UI is free to decide where that string comes
   from — a route, a dropdown, a per-user setting, etc.
@@ -50,29 +50,29 @@ thing separating them is the namespace string passed to each `analyze()` /
 
 Each extension branch is a completed reference implementation. Workshop
 participants start from `main` and build their chosen extension themselves
-with Claude Code + the MemWal SDK skill file.
+with Claude Code + the Walrus Memory SDK skill file.
 
-## What MemWal is
+## What Walrus Memory is
 
-MemWal is a privacy-first AI memory layer for Sui + Walrus.
+Walrus Memory is a privacy-first AI memory layer for Sui + Walrus.
 See https://docs.memwal.ai and the SDK at https://www.npmjs.com/package/@mysten-incubation/memwal.
 
 ## Using Claude Code in this repo
 
 Two files at the repo root are written for AI assistants:
 
-- **`SKILL.md`** — a self-contained MemWal SDK reference (installation, API surface,
+- **`SKILL.md`** — a self-contained Walrus Memory SDK reference (installation, API surface,
   troubleshooting). Snapshot of https://github.com/MystenLabs/MemWal/blob/main/SKILL.md.
 - **`CLAUDE.md`** — project conventions and guardrails for Claude Code.
 
 Both are picked up automatically by Claude Code. If you're using a different AI
-tool, paste `SKILL.md` into context before asking it to write MemWal code.
+tool, paste `SKILL.md` into context before asking it to write Walrus Memory code.
 
 ## Prerequisites
 
 - Node.js 18+ (22 recommended — matches the rest of the monorepo)
 - pnpm
-- A MemWal account + a delegate key
+- A Walrus Memory account + a delegate key
 
 ## Setup
 
@@ -119,7 +119,7 @@ tool, paste `SKILL.md` into context before asking it to write MemWal code.
 
 | Surface | File |
 |---|---|
-| MemWal client (cached per process) | `lib/memwal.ts` |
+| Walrus Memory client (cached per process) | `lib/memwal.ts` |
 | Namespace consts + helpers (not a "use server" module) | `app/namespaces.ts` |
 | Namespace-aware server actions | `app/actions.ts` |
 | Page with namespace switcher | `app/page.tsx` |
@@ -133,4 +133,4 @@ tool, paste `SKILL.md` into context before asking it to write MemWal code.
   memory is durable. This avoids the ~3s indexer-lag window where a freshly-
   stored memory isn't yet recallable.
 - The delegate key lives in `.env.local` and stays server-side. Server actions
-  call MemWal; the browser only sees plaintext results.
+  call Walrus Memory; the browser only sees plaintext results.
